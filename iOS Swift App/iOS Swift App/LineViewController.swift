@@ -34,7 +34,6 @@ class LineViewController: UIViewController, BluetoothSerialDelegate {
     @IBOutlet weak var ConnectBtn: UIBarButtonItem!
     
     var ref: DatabaseReference!
-    var string123 : String = ""
     
     @IBAction func Connect(_ sender: Any) {
         if serial.connectedPeripheral == nil {
@@ -143,32 +142,16 @@ class LineViewController: UIViewController, BluetoothSerialDelegate {
     override func viewWillAppear(_ animated: Bool) {
         reloadView()
         getImageDB(value2: "temperatureGraph")
-        //updateTitle()
-        printMessagesForUser(parameters: "test") {
-            (returnval, error) in
-            if (returnval)!
-            {
-                DispatchQueue.main.async {
-                    self.Severity.text = self.string123
-                }
-            } else {
-                print(error)
-            }
-        }
-        DispatchQueue.main.async { // Correct
-            self.Severity.text = self.string123
-        }
-        
+        updateTitle()
     }
 
-    func printMessagesForUser(parameters: String, CompletionHandler: @escaping (Bool?, Error?) -> Void){
-        let json = ["1,2,3"]
+    func printMessagesForUser(parameters: String) {
+        let json = [parameters]
         print(json)
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
             
-            
-            let url = NSURL(string: "https://hackhsn.herokuapp.com/api?arya=hello")!
+            let url = NSURL(string: "https://h2hacks1.herokuapp.com/api")!
             let request = NSMutableURLRequest(url: url as URL)
             request.httpMethod = "POST"
             
@@ -177,28 +160,21 @@ class LineViewController: UIViewController, BluetoothSerialDelegate {
             
             let task = URLSession.shared.dataTask(with: request as URLRequest){ data, response, error in
                 if let string = String(data: data!, encoding: .utf8) {
-                    self.string123 = string
                     print(string)
-                    CompletionHandler(true,nil)
-                    
                     //self.Severity.text = "hello"
                 } else {
-                    
                     print("not a valid UTF-8 sequence")
                 }
-                
-                //self.Severity.text = "test"
                 
             }
             task.resume()
         } catch {
-            
             print(error)
         }
     }
     
     func serialDidReceiveString(_ message: String) {
-        //printMessagesForUser(parameters: message)
+        printMessagesForUser(parameters: message)
         if Segmented.selectedSegmentIndex == 0 {
             //printMessagesForUser(parameters: "Temperature")
             getImageDB(value2: "temperatureGraph")
@@ -214,7 +190,7 @@ class LineViewController: UIViewController, BluetoothSerialDelegate {
             //printMessagesForUser(parameters: "Severity")
             getImageDB(value2: "severityGraph")
         }
-        //updateTitle()
+        updateTitle()
         /*
         
         let doc = try SwiftSoup.parse(htmlcontents)
